@@ -1,0 +1,12 @@
+Title: Mixed Evidence & Unknowns
+
+Overview:
+This mock file contains heterogeneous findings across sources. Use to test how the system surfaces conflicting evidence.
+
+Excerpts:
+- Source A: Strong early uptake in urban centers; cites clinician preference.
+- Source B: Surveys indicate low patient willingness due to cost concerns.
+- Source C: Supply disruptions reported in two regions causing delays.
+
+Conclusion:
+Evidence is mixed; further targeted data collection recommended to resolve conflicts.

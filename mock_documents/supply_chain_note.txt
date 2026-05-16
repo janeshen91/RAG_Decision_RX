@@ -1,0 +1,14 @@
+Title: Supply Chain Constraints — Vendor & Component Summary
+
+Summary:
+Mock note describing suppliers, lead times, single-source risks, and mitigation approaches for components relevant to Product Y.
+
+Details:
+- Primary component Z sourced from Supplier Alpha (single-source). Typical lead time: 10-14 weeks.
+- Secondary suppliers available but require qualification (3-4 months).
+- Logistics: Sea freight delays and seasonal congestion observed during Q4.
+
+Mitigations:
+- Establish safety stock (8-12 weeks) during ramp.
+- Qualify secondary supplier in parallel with pilot.
+- Consider air freight for time-sensitive batches (cost premium).

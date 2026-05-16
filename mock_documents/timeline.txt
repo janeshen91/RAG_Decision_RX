@@ -1,0 +1,8 @@
+Title: Adoption & Deployment Timeline (Mock)
+
+Timeline:
+- Month 0: Regulatory pre-submission & pilot planning
+- Month 1-3: Pilot deployments at 3 sites, initial training
+- Month 4: Interim review; identify supply/adherence issues
+- Month 5-8: Scale-up to 15 sites pending reimbursement signals
+- Month 9-12: Full commercial launch contingent on payer engagement

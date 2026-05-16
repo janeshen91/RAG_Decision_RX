@@ -1,0 +1,16 @@
+Title: Q2 Market Signal — Executive Summary
+
+Executive Summary:
+This mock business analysis outlines market adoption signals, competitive landscape, revenue projections, and adoption risk for Product Y.
+
+Key Points:
+- Market size estimated at $1.2B TAM, with serviceable obtainable market ~12% in year 1.
+- Early adopter segments: specialty clinics and integrated health systems.
+- Competitive pressure from incumbents A and B may compress margins.
+
+Risks:
+- Adoption risk driven by reimbursement uncertainty, clinician workflow disruption, and supply cadence.
+- Price sensitivity in non-specialty segments may slow growth.
+
+Recommendations:
+- Focus pilot programs on specialty clinics, secure a reimbursement pathway, and create educational materials to reduce perceived workflow burden.
