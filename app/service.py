@@ -29,6 +29,7 @@ class RAGService:
                     source_type=doc.source_type,
                     chunk_size=self.settings.chunk_size,
                     chunk_overlap=self.settings.chunk_overlap,
+                    metadata=doc.metadata,
                 )
             )
         return chunks
@@ -48,9 +49,9 @@ class RAGService:
         indexed = self.vector_store.upsert_chunks(chunks, embeddings)
         return note_id, indexed
 
-    def ask(self, question: str, top_k: int = 5) -> dict:
+    def ask(self, question: str, top_k: int = 5, filters: dict[str, str] | None = None) -> dict:
         q_emb = self.embedder.embed_query(question)
-        retrieved = self.vector_store.query(q_emb, top_k=top_k)
+        retrieved = self.vector_store.query(q_emb, top_k=top_k, where=_build_where(filters))
         evidence = [
             {
                 "chunk_id": c.chunk_id,
@@ -85,6 +86,28 @@ class RAGService:
 
     def health(self) -> dict:
         return {"status": "ok", "indexed_chunks": self.vector_store.count()}
+
+
+# Metadata fields a client is allowed to filter on. Restricting this prevents
+# arbitrary/operator keys (e.g. "$and") from being passed straight to Chroma,
+# which would surface as a 500 instead of a clean client error.
+_ALLOWED_FILTER_FIELDS = frozenset({"source_type", "date", "project", "author"})
+
+
+def _build_where(filters: dict[str, str] | None) -> dict | None:
+    """Translate a flat field->value filter map into Chroma's `where` syntax.
+    Chroma requires an explicit `$and` when filtering on more than one field.
+    Raises ValueError for unsupported filter fields."""
+    if not filters:
+        return None
+    invalid = [field for field in filters if field not in _ALLOWED_FILTER_FIELDS]
+    if invalid:
+        allowed = ", ".join(sorted(_ALLOWED_FILTER_FIELDS))
+        raise ValueError(f"Unsupported filter field(s): {invalid}. Allowed: {allowed}.")
+    clauses = [{field: value} for field, value in filters.items()]
+    if len(clauses) == 1:
+        return clauses[0]
+    return {"$and": clauses}
 
 
 def _normalize_answer(payload: dict) -> dict:
