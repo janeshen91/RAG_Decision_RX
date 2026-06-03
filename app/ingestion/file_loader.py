@@ -1,10 +1,12 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from pypdf import PdfReader
 from docx import Document as DocxDocument
+
+from app.ingestion.metadata import extract_basic_metadata, infer_source_type
 
 
 SUPPORTED_EXTENSIONS = {".txt", ".pdf", ".docx"}
@@ -16,6 +18,7 @@ class RawDocument:
     source: str
     text: str
     source_type: str = "file"
+    metadata: dict[str, str] = field(default_factory=dict)
 
 
 def _read_txt(path: Path) -> str:
@@ -65,6 +68,8 @@ def load_documents_from_directory(directory: str) -> list[RawDocument]:
                 doc_id=doc_id,
                 source=str(path.resolve()),
                 text=text,
+                source_type=infer_source_type(path),
+                metadata=extract_basic_metadata(path, text),
             )
         )
 

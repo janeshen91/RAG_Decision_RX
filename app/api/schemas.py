@@ -15,6 +15,10 @@ class IngestResponse(BaseModel):
 class AskRequest(BaseModel):
     question: str
     top_k: int = 5
+    filters: dict[str, str] | None = Field(
+        default=None,
+        description="Optional metadata filters, e.g. {\"source_type\": \"meeting\"}",
+    )
 
 
 class RationaleBreakdown(BaseModel):
@@ -34,10 +38,22 @@ class EvidenceItem(BaseModel):
     snippet: str
 
 
+class Claim(BaseModel):
+    text: str
+    explicit_or_inferred: str = Field(
+        description="One of: explicit (stated in cited evidence), "
+        "inferred (synthesized), unknown (raised but unresolved)."
+    )
+    evidence_ids: list[str] = Field(default_factory=list)
+    confidence: float = 0.0
+
+
 class AskResponse(BaseModel):
     answer_summary: str
     rationale_breakdown: RationaleBreakdown
     supporting_evidence: list[EvidenceItem]
+    claims: list[Claim] = Field(default_factory=list)
+    unknowns: list[str] = Field(default_factory=list)
     confidence: float
     limitations: list[str]
 
