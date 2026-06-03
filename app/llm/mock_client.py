@@ -19,6 +19,8 @@ class MockLLMClient:
                     "unknown_or_mixed": "Insufficient evidence to answer confidently.",
                 },
                 "supporting_evidence": [],
+                "claims": [],
+                "unknowns": ["No indexed evidence addresses the question."],
                 "confidence": 0.1,
                 "limitations": ["No matching chunks found in the indexed corpus."],
             }
@@ -40,6 +42,15 @@ class MockLLMClient:
                 "unknown_or_mixed": "Some categories are not covered by the evidence.",
             },
             "supporting_evidence": evidence,
+            "claims": [
+                {
+                    "text": summary,
+                    "explicit_or_inferred": "explicit",
+                    "evidence_ids": ["E1"],
+                    "confidence": round(min(0.95, max(0.2, float(top["score"]))), 2),
+                }
+            ],
+            "unknowns": [],
             "confidence": round(min(0.95, max(0.2, float(top["score"]))), 2),
             "limitations": limitations,
         }
