@@ -19,7 +19,7 @@ class OpenAILLMClient:
                     "role": "system",
                     "content": (
                         "Return only valid JSON using keys: answer_summary, rationale_breakdown, "
-                        "supporting_evidence, confidence, limitations."
+                        "supporting_evidence, claims, unknowns, confidence, limitations."
                     ),
                 },
                 {"role": "user", "content": prompt},
@@ -42,6 +42,8 @@ class OpenAILLMClient:
                     "unknown_or_mixed": "Unable to parse LLM response.",
                 },
                 "supporting_evidence": evidence,
+                "claims": [],
+                "unknowns": [],
                 "confidence": 0.2,
                 "limitations": ["Response parsing failed."],
             }

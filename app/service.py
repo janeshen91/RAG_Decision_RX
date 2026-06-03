@@ -79,6 +79,14 @@ class RAGService:
             },
         )
         answer["supporting_evidence"] = evidence
+
+        # Claims reference evidence by either its [E#] label or its chunk_id;
+        # normalize both to chunk_ids and validate against what was retrieved.
+        valid_ids = {c.chunk_id for c in retrieved}
+        label_map = {f"E{i + 1}": c.chunk_id for i, c in enumerate(retrieved)}
+        answer["claims"] = _normalize_claims(answer.get("claims"), valid_ids, label_map)
+        answer["unknowns"] = [str(x) for x in answer.get("unknowns", []) or []]
+
         answer.setdefault("confidence", 0.0)
         answer.setdefault("limitations", [])
 
@@ -110,11 +118,68 @@ def _build_where(filters: dict[str, str] | None) -> dict | None:
     return {"$and": clauses}
 
 
+_CLAIM_LABELS = frozenset({"explicit", "inferred", "unknown"})
+
+
+def _normalize_claims(
+    raw_claims: object,
+    valid_ids: set[str],
+    label_map: dict[str, str],
+) -> list[dict]:
+    """Validate/normalize model-produced claims:
+    - coerce the label to one of explicit/inferred/unknown (default inferred),
+    - map [E#] labels to chunk_ids and drop any evidence_id not actually retrieved,
+    - downgrade an "explicit" claim with no surviving evidence to "inferred",
+      enforcing the acceptance criterion that explicit claims must be grounded.
+    """
+    normalized: list[dict] = []
+    for raw in raw_claims or []:
+        if not isinstance(raw, dict):
+            continue
+        text = str(raw.get("text", "")).strip()
+        if not text:
+            continue
+
+        label = str(raw.get("explicit_or_inferred", "inferred")).lower().strip()
+        if label not in _CLAIM_LABELS:
+            label = "inferred"
+
+        ids: list[str] = []
+        for raw_id in raw.get("evidence_ids", []) or []:
+            token = str(raw_id).strip()
+            if token.startswith("[") and token.endswith("]"):
+                token = token[1:-1].strip()  # accept "[E1]" as well as "E1"
+            mapped = label_map.get(token, token)
+            if mapped in valid_ids and mapped not in ids:
+                ids.append(mapped)
+
+        if label == "explicit" and not ids:
+            label = "inferred"
+
+        try:
+            confidence = float(raw.get("confidence", 0.0))
+        except (TypeError, ValueError):
+            confidence = 0.0
+        confidence = max(0.0, min(1.0, confidence))  # prompt/schema define 0-1
+
+        normalized.append(
+            {
+                "text": text,
+                "explicit_or_inferred": label,
+                "evidence_ids": ids,
+                "confidence": confidence,
+            }
+        )
+    return normalized
+
+
 def _normalize_answer(payload: dict) -> dict:
     return {
         "answer_summary": str(payload.get("answer_summary", "")),
         "rationale_breakdown": dict(payload.get("rationale_breakdown", {})),
         "supporting_evidence": list(payload.get("supporting_evidence", [])),
+        "claims": list(payload.get("claims", [])),
+        "unknowns": [str(x) for x in payload.get("unknowns", [])],
         "confidence": float(payload.get("confidence", 0.0)),
         "limitations": [str(x) for x in payload.get("limitations", [])],
     }
