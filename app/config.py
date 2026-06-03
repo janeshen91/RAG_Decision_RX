@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     openai_model: str = Field(default="gpt-4o-mini")
     openai_api_key: str | None = Field(default=None)
 
+    embedding_provider: str = Field(default="hash")
+    openai_embedding_model: str = Field(default="text-embedding-3-small")
+
 
 @lru_cache
 def get_settings() -> Settings:
