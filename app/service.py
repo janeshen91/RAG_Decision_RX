@@ -4,7 +4,7 @@ import uuid
 
 from app.chunking.text_chunker import TextChunk, chunk_text
 from app.config import Settings
-from app.embeddings.hash_embeddings import HashEmbeddingModel
+from app.embeddings.factory import get_embedding_model
 from app.ingestion.file_loader import RawDocument, load_documents_from_directory
 from app.llm.factory import get_llm_client
 from app.prompts.ask_prompt import build_ask_prompt
@@ -14,8 +14,8 @@ from app.retrieval.vector_store import ChromaVectorStore
 class RAGService:
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
-        self.embedder = HashEmbeddingModel()
-        self.vector_store = ChromaVectorStore(settings)
+        self.embedder = get_embedding_model(settings)
+        self.vector_store = ChromaVectorStore(settings, self.embedder)
         self.llm = get_llm_client(settings)
 
     def _chunk_documents(self, docs: list[RawDocument]) -> list[TextChunk]:

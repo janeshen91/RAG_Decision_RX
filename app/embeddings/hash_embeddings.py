@@ -16,6 +16,14 @@ class HashEmbeddingModel(EmbeddingModel):
     def __init__(self, dimensions: int = 384) -> None:
         self.dimensions = dimensions
 
+    @property
+    def name(self) -> str:
+        return f"hash-d{self.dimensions}"
+
+    @property
+    def dimension(self) -> int:
+        return self.dimensions
+
     def _embed(self, text: str) -> list[float]:
         vec = [0.0] * self.dimensions
         tokens = TOKEN_RE.findall(text.lower())
