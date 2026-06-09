@@ -101,7 +101,9 @@ HOME_PAGE_HTML = """<!DOCTYPE html>
         });
         const data = await response.json();
         if (!response.ok) throw new Error(data.detail || JSON.stringify(data));
-        output.value = `Answer Summary:\n${data.answer_summary}\n\nRationale Breakdown:\n${JSON.stringify(data.rationale_breakdown, null, 2)}\n\nSupporting Evidence:\n${data.supporting_evidence.map((item) => `- ${item.text}`).join('\n')}\n\nConfidence: ${data.confidence}\n\nLimitations:\n${data.limitations}`;
+        const evidenceText = data.supporting_evidence.map((item) => `- ${item.snippet}`).join('\n');
+        const limitationsText = (data.limitations || []).map((item) => `- ${item}`).join('\n');
+        output.value = `Answer Summary:\n${data.answer_summary}\n\nRationale Breakdown:\n${JSON.stringify(data.rationale_breakdown, null, 2)}\n\nSupporting Evidence:\n${evidenceText}\n\nConfidence: ${data.confidence}\n\nLimitations:\n${limitationsText}`;
       } catch (error) {
         output.value = `Error: ${error.message}`;
       }

@@ -55,6 +55,21 @@ def test_ingest_and_ask(tmp_path: Path) -> None:
     assert body["supporting_evidence"]
 
 
+def test_homepage_renders_evidence_with_snippet(tmp_path: Path) -> None:
+    # Guards the PR-1 fix: the evidence viewer must read `item.snippet`
+    # (the EvidenceItem schema field), not the non-existent `item.text`,
+    # otherwise the UI renders "- undefined" for every evidence item.
+    client = build_test_client(tmp_path)
+    resp = client.get("/")
+    assert resp.status_code == 200
+    html = resp.text
+    assert "item.snippet" in html
+    assert "item.text" not in html
+    # Limitations must be rendered line-by-line, not interpolated raw
+    # (which would coerce the array to a comma-joined string).
+    assert "(data.limitations || [])" in html
+
+
 def test_notes_endpoint(tmp_path: Path) -> None:
     client = build_test_client(tmp_path)
 
