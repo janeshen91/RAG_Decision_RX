@@ -1,6 +1,6 @@
 # Lab Knowledge Explorer - Implementation Plan
 
-Draft v0.3 | Baseline schedule: 12 weeks with 2 engineer-equivalents. Working draft (uncommitted) - companion to lab_knowledge_explorer_spec_v0.3.md.
+Draft v0.3 | Baseline schedule: 12 weeks with 2 engineer-equivalents. Working draft - companion to lab_knowledge_explorer_spec_v0.3.md.
 
 NOTE: Staffing is the hard dependency. This 12-week plan REQUIRES two engineer-equivalents: Eng-P (Python/ML) and Eng-I (Ruby/Decko/AWS). The stated 1-engineer team does NOT fit 12 weeks - see the 16-week single-engineer schedule in Section 6. The single-engineer 12-week path is not offered as realistic.
 
