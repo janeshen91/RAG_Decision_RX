@@ -29,7 +29,10 @@ def ingest_documents(req: IngestRequest, service: RAGService = Depends(get_servi
 
 @router.post("/ask", response_model=AskResponse)
 def ask_question(req: AskRequest, service: RAGService = Depends(get_service)) -> AskResponse:
-    payload = service.ask(question=req.question, top_k=req.top_k)
+    try:
+        payload = service.ask(question=req.question, top_k=req.top_k, filters=req.filters)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     return AskResponse(**payload)
 
 

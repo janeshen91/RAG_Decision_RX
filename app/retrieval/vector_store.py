@@ -82,14 +82,26 @@ class ChromaVectorStore:
                 "source": c.source,
                 "source_type": c.source_type,
                 "chunk_index": c.chunk_index,
+                # Best-effort optional fields (date/project/author) are only
+                # present when they were actually extracted at ingestion.
+                **c.metadata,
             }
             for c in chunks
         ]
         self.collection.upsert(ids=ids, documents=docs, metadatas=metas, embeddings=embeddings)
         return len(chunks)
 
-    def query(self, query_embedding: list[float], top_k: int = 5) -> list[RetrievedChunk]:
-        result: dict[str, Any] = self.collection.query(query_embeddings=[query_embedding], n_results=top_k)
+    def query(
+        self,
+        query_embedding: list[float],
+        top_k: int = 5,
+        where: dict[str, Any] | None = None,
+    ) -> list[RetrievedChunk]:
+        result: dict[str, Any] = self.collection.query(
+            query_embeddings=[query_embedding],
+            n_results=top_k,
+            where=where or None,
+        )
 
         ids = result.get("ids", [[]])[0]
         docs = result.get("documents", [[]])[0]

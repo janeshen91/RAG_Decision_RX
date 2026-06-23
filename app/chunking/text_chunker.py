@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass
@@ -11,6 +11,7 @@ class TextChunk:
     source: str
     source_type: str
     chunk_index: int
+    metadata: dict[str, str] = field(default_factory=dict)
 
 
 def chunk_text(
@@ -21,6 +22,7 @@ def chunk_text(
     source_type: str,
     chunk_size: int,
     chunk_overlap: int,
+    metadata: dict[str, str] | None = None,
 ) -> list[TextChunk]:
     if chunk_size <= 0:
         raise ValueError("chunk_size must be > 0")
@@ -46,6 +48,7 @@ def chunk_text(
                 source=source,
                 source_type=source_type,
                 chunk_index=idx,
+                metadata=dict(metadata or {}),
             )
         )
         idx += 1

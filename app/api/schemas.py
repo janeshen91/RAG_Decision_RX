@@ -15,6 +15,10 @@ class IngestResponse(BaseModel):
 class AskRequest(BaseModel):
     question: str
     top_k: int = 5
+    filters: dict[str, str] | None = Field(
+        default=None,
+        description="Optional metadata filters, e.g. {\"source_type\": \"meeting\"}",
+    )
 
 
 class RationaleBreakdown(BaseModel):
