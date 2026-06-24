@@ -137,6 +137,31 @@ def test_ask_multi_key_filter(tmp_path: Path) -> None:
     assert all("alpha_study" in item["source"] for item in filtered["supporting_evidence"])
 
 
+def test_ask_returns_grounded_labeled_claims(tmp_path: Path) -> None:
+    docs_dir = tmp_path / "docs"
+    docs_dir.mkdir(parents=True, exist_ok=True)
+    (docs_dir / "trial.txt").write_text(
+        "Compound A reduced inflammatory markers by 30 percent in a small study.",
+        encoding="utf-8",
+    )
+
+    client = build_test_client(tmp_path)
+    assert client.post("/ingest", json={"directory": str(docs_dir)}).status_code == 200
+
+    body = client.post("/ask", json={"question": "What did the study find?", "top_k": 3}).json()
+    assert "claims" in body and "unknowns" in body
+    assert body["claims"]
+
+    evidence_ids = {item["chunk_id"] for item in body["supporting_evidence"]}
+    for claim in body["claims"]:
+        assert claim["explicit_or_inferred"] in {"explicit", "inferred", "unknown"}
+        # Every cited evidence id must be a real retrieved chunk.
+        assert set(claim["evidence_ids"]) <= evidence_ids
+        # Explicit claims must be grounded in at least one evidence id.
+        if claim["explicit_or_inferred"] == "explicit":
+            assert claim["evidence_ids"]
+
+
 def test_notes_endpoint(tmp_path: Path) -> None:
     client = build_test_client(tmp_path)
 
